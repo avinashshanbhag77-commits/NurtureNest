@@ -1,17 +1,54 @@
 import { NextResponse } from 'next/server';
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import dbConnect from '@/lib/mongodb';
+import User from '@/models/User';
 
 export async function POST(req: Request) {
     try {
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user?.email) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        await dbConnect();
+        const user = await User.findOne({ email: session.user.email });
+        if (!user) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        // Tier-based limits
+        const tier = user.subscriptionTier || 'free';
+        const aiRequests = user.usageStats?.aiRequests || 0;
+
+        if (tier === 'free' && aiRequests >= 5) {
+            return NextResponse.json({
+                error: 'Limit Reached',
+                message: 'Free tier is limited to 5 AI requests. Upgrade to Pro for 100 requests!',
+                limitReached: true
+            }, { status: 403 });
+        }
+
+        if (tier === 'pro' && aiRequests >= 100) {
+            return NextResponse.json({
+                error: 'Limit Reached',
+                message: 'Pro tier is limited to 100 AI requests. Upgrade to Annual for unlimited access!',
+                limitReached: true
+            }, { status: 403 });
+        }
+
         const { message, conversationHistory } = await req.json();
+        console.log('SERVER: Incoming message:', message);
+        console.log('SERVER: History length:', conversationHistory?.length || 0);
 
         if (!message) {
             return NextResponse.json({ error: 'Message is required' }, { status: 400 });
         }
 
-        const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+        const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY?.trim();
 
         if (!OPENROUTER_API_KEY) {
-            console.error('SERVER ERROR: OPENROUTER_API_KEY is missing from environment variables');
+            console.error('SERVER ERROR: OPENROUTER_API_KEY is missing or empty');
             return NextResponse.json({
                 error: 'AI service not configured',
                 details: 'API key is missing on the server'
@@ -49,6 +86,8 @@ Remember: You're a support companion, not a medical professional.`
         ];
 
         // Call OpenRouter API
+        console.log('Sending request to OpenRouter with model:', 'meta-llama/llama-3.3-70b-instruct:free');
+
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -58,7 +97,7 @@ Remember: You're a support companion, not a medical professional.`
                 'X-Title': 'NurtureNest'
             },
             body: JSON.stringify({
-                model: 'meta-llama/llama-3.3-70b-instruct:free', // Using a stable verified free model
+                model: 'meta-llama/llama-3.3-70b-instruct:free',
                 messages: messages,
                 temperature: 0.7,
                 max_tokens: 500
@@ -66,22 +105,55 @@ Remember: You're a support companion, not a medical professional.`
         });
 
         if (!response.ok) {
-            let errorData = {};
+            const status = response.status;
+            const statusText = response.statusText;
+            let errorText = '';
+            let errorData: any = null;
+
             try {
-                errorData = await response.json();
+                errorText = await response.text();
+                errorData = JSON.parse(errorText);
             } catch (e) {
-                console.error('Failed to parse error response:', e);
+                console.error(`SERVER: Failed to parse error response from OpenRouter (Status ${status}):`, e);
             }
-            console.error('OpenRouter API error (Status ' + response.status + '):', errorData);
+
+            console.error(`SERVER: OpenRouter API error (Status ${status} ${statusText}):`, errorData || errorText);
+
+            // Construct a cleaner error response for the client
+            const finalDetails = (errorData && Object.keys(errorData).length > 0)
+                ? errorData
+                : (errorText ? errorText.substring(0, 200) : 'No error details available');
+
             return NextResponse.json({
                 error: 'AI service error',
-                details: errorData,
-                status: response.status
+                message: `The AI service returned a ${status} error (${statusText}).`,
+                details: finalDetails,
+                status: status
             }, { status: 500 });
         }
 
-        const data = await response.json();
-        const aiResponse = data.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response. Please try again.";
+        const responseText = await response.text();
+        let data;
+        try {
+            data = JSON.parse(responseText);
+        } catch (e) {
+            console.error('Failed to parse successful response as JSON:', e);
+            return NextResponse.json({
+                error: 'Invalid response from AI service',
+                details: responseText.substring(0, 100)
+            }, { status: 500 });
+        }
+
+        const aiResponse = data.choices?.[0]?.message?.content || "I'm sorry, I couldn't generate a response. Please try again.";
+
+        // Update usage stats for the user
+        if (session?.user?.email) {
+            await dbConnect();
+            await User.findOneAndUpdate(
+                { email: session.user.email },
+                { $inc: { 'usageStats.aiRequests': 1 } }
+            );
+        }
 
         return NextResponse.json({
             response: aiResponse,
@@ -92,7 +164,8 @@ Remember: You're a support companion, not a medical professional.`
         console.error('AI chat error:', error);
         return NextResponse.json({
             error: 'Internal server error',
-            message: error instanceof Error ? error.message : 'Unknown error'
+            message: error instanceof Error ? error.message : 'Unknown error',
+            stack: process.env.NODE_ENV === 'development' && error instanceof Error ? error.stack : undefined
         }, { status: 500 });
     }
 }

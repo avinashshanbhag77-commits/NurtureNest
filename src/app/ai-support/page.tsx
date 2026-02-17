@@ -47,9 +47,23 @@ const AISupport: React.FC = () => {
             });
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error('AI API Error:', errorData);
-                throw new Error(errorData.error || 'Failed to get AI response');
+                const contentType = response.headers.get('content-type');
+                let errorData;
+
+                if (contentType && contentType.includes('application/json')) {
+                    try {
+                        errorData = await response.json();
+                    } catch (e) {
+                        const text = await response.text();
+                        errorData = { error: 'Invalid JSON response', details: text.substring(0, 200) };
+                    }
+                } else {
+                    const text = await response.text();
+                    errorData = { error: 'Non-JSON response', details: text.substring(0, 200) };
+                }
+
+                console.error('AI API Error (Status ' + response.status + '):', errorData);
+                throw new Error(errorData.error || errorData.message || 'Failed to get AI response (Status ' + response.status + ')');
             }
 
             const data = await response.json();
@@ -59,12 +73,16 @@ const AISupport: React.FC = () => {
                 sender: 'ai',
                 text: data.response
             }]);
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error sending message:', error);
+            const isLimitError = error.message.includes('Limit Reached') || error.message.includes('limited to');
+
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 sender: 'ai',
-                text: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment."
+                text: isLimitError
+                    ? `${error.message} Please visit our Pricing page to upgrade.`
+                    : "I'm sorry, I'm having trouble connecting right now. Please try again in a moment."
             }]);
         } finally {
             setIsLoading(false);

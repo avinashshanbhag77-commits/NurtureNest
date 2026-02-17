@@ -15,6 +15,15 @@ const TrackerView: React.FC<TrackerViewProps> = ({ initialWeek, hasDueDate }) =>
     const [currentWeek, setCurrentWeek] = useState(initialWeek);
     const [showDueDateModal, setShowDueDateModal] = useState(!hasDueDate);
     const [dateInput, setDateInput] = useState('');
+    const [showSymptomModal, setShowSymptomModal] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [symptomData, setSymptomData] = useState({
+        mood: '',
+        symptoms: [] as string[],
+        weight: '',
+        notes: '',
+        date: new Date().toISOString().split('T')[0]
+    });
     const router = useRouter();
 
     useEffect(() => {
@@ -22,6 +31,35 @@ const TrackerView: React.FC<TrackerViewProps> = ({ initialWeek, hasDueDate }) =>
             setShowDueDateModal(true);
         }
     }, [hasDueDate]);
+
+    const handleLogSymptoms = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/health-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(symptomData),
+            });
+            if (res.ok) {
+                setShowSymptomModal(false);
+                setSymptomData({
+                    mood: '',
+                    symptoms: [],
+                    weight: '',
+                    notes: '',
+                    date: new Date().toISOString().split('T')[0]
+                });
+                alert('Symptom log saved successfully!');
+            } else {
+                alert('Failed to save health log.');
+            }
+        } catch (error) {
+            console.error('Failed to log symptoms', error);
+            alert('An error occurred while saving.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleSetDueDate = async () => {
         if (!dateInput) return;
@@ -172,8 +210,128 @@ const TrackerView: React.FC<TrackerViewProps> = ({ initialWeek, hasDueDate }) =>
                 }}>
                     <h3 style={{ margin: 0, color: 'white' }}>Feeling something new?</h3>
                     <p>Track your symptoms to get personalized advice and alerts.</p>
-                    <Button variant="secondary" style={{ color: 'var(--text-color)' }}>Log Symptoms</Button>
+                    <Button
+                        variant="secondary"
+                        style={{ color: 'var(--text-color)' }}
+                        onClick={() => setShowSymptomModal(true)}
+                    >
+                        Log Symptoms
+                    </Button>
                 </div>
+
+                {/* Symptom Modal */}
+                {showSymptomModal && (
+                    <div style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        padding: '1rem'
+                    }}>
+                        <div style={{
+                            backgroundColor: 'white',
+                            padding: '2rem',
+                            borderRadius: 'var(--radius-lg)',
+                            width: '100%',
+                            maxWidth: '500px',
+                            maxHeight: '90vh',
+                            overflowY: 'auto'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                                <h3 style={{ margin: 0 }}>Log Symptoms</h3>
+                                <button onClick={() => setShowSymptomModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.5rem' }}>&times;</button>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>How are you feeling?</label>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                                        {['Happy', 'Neutral', 'Tired', 'Anxious', 'Sad', 'Excited'].map(m => (
+                                            <button
+                                                key={m}
+                                                onClick={() => setSymptomData({ ...symptomData, mood: m })}
+                                                style={{
+                                                    padding: '0.5rem',
+                                                    borderRadius: 'var(--radius-sm)',
+                                                    border: '1px solid #ddd',
+                                                    backgroundColor: symptomData.mood === m ? 'var(--secondary-color)' : 'white',
+                                                    color: symptomData.mood === m ? 'white' : 'inherit',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                {m}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Any specific symptoms?</label>
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                                        {['Nausea', 'Fatigue', 'Headaches', 'Back Pain', 'Swelling', 'Cravings', 'Heartburn', 'Insomnia'].map(s => (
+                                            <button
+                                                key={s}
+                                                onClick={() => {
+                                                    const newSymptoms = symptomData.symptoms.includes(s)
+                                                        ? symptomData.symptoms.filter(i => i !== s)
+                                                        : [...symptomData.symptoms, s];
+                                                    setSymptomData({ ...symptomData, symptoms: newSymptoms });
+                                                }}
+                                                style={{
+                                                    padding: '0.4rem 0.8rem',
+                                                    borderRadius: '20px',
+                                                    border: '1px solid #ddd',
+                                                    backgroundColor: symptomData.symptoms.includes(s) ? 'var(--primary-color)' : 'white',
+                                                    color: symptomData.symptoms.includes(s) ? 'white' : 'inherit',
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.9rem'
+                                                }}
+                                            >
+                                                {s}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Weight (kg)</label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            value={symptomData.weight}
+                                            onChange={(e) => setSymptomData({ ...symptomData, weight: e.target.value })}
+                                            style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid #ddd' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Date</label>
+                                        <input
+                                            type="date"
+                                            value={symptomData.date}
+                                            onChange={(e) => setSymptomData({ ...symptomData, date: e.target.value })}
+                                            style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid #ddd' }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Additional Notes</label>
+                                    <textarea
+                                        rows={3}
+                                        value={symptomData.notes}
+                                        onChange={(e) => setSymptomData({ ...symptomData, notes: e.target.value })}
+                                        style={{ width: '100%', padding: '0.5rem', borderRadius: 'var(--radius-sm)', border: '1px solid #ddd', resize: 'none' }}
+                                        placeholder="How are you really doing?"
+                                    />
+                                </div>
+
+                                <Button fullWidth onClick={handleLogSymptoms} disabled={loading}>
+                                    {loading ? 'Saving...' : 'Save Health Log'}
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

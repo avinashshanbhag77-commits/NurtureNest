@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Heart, Calendar, Utensils, Activity, MessageCircle, User, LogOut } from 'lucide-react';
+import { Menu, X, Heart, Calendar, Utensils, Activity, MessageCircle, User, LogOut, Zap } from 'lucide-react';
 import { useSession, signOut } from "next-auth/react";
 import Button from './Button';
 
@@ -19,6 +19,7 @@ const Header: React.FC = () => {
         { name: 'Wellness', path: '/wellness', icon: <Activity size={18} /> },
         { name: 'AI Support', path: '/ai-support', icon: <MessageCircle size={18} /> },
         { name: 'Community', path: '/community', icon: <Heart size={18} /> },
+        { name: 'Pricing', path: '/pricing', icon: <Zap size={18} /> },
     ];
 
     const isActive = (path: string) => pathname === path;
