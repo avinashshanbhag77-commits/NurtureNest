@@ -1,22 +1,24 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSession, signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Button from '../../../components/Button';
 import Card from '../../../components/Card';
 
-export default function SignIn() {
+function SignInContent() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
     useEffect(() => {
         if (status === 'authenticated') {
-            router.push('/dashboard');
+            // Force a browser-level redirect to ensure sync
+            window.location.href = callbackUrl;
         }
-    }, [status, router]);
+    }, [status, callbackUrl]);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -37,7 +39,7 @@ export default function SignIn() {
                 return;
             }
 
-            router.push('/');
+            router.push(callbackUrl);
             router.refresh();
         } catch (error) {
             setError('An error occurred. Please try again.');
@@ -123,5 +125,13 @@ export default function SignIn() {
                 </p>
             </Card>
         </div>
+    );
+}
+
+export default function SignIn() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SignInContent />
+        </Suspense>
     );
 }

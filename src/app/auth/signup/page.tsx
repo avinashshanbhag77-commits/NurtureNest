@@ -1,22 +1,23 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Button from '../../../components/Button';
 import Card from '../../../components/Card';
 
-export default function SignUp() {
+function SignUpContent() {
     const { data: session, status } = useSession();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
     useEffect(() => {
         if (status === 'authenticated') {
-            router.push('/dashboard');
+            window.location.href = callbackUrl;
         }
-    }, [status, router]);
+    }, [status, callbackUrl]);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -34,7 +35,7 @@ export default function SignUp() {
             });
 
             if (res.ok) {
-                router.push('/auth/signin');
+                router.push(`/auth/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`);
             } else {
                 const data = await res.json();
                 setError(data.message || 'Something went wrong.');
@@ -120,5 +121,13 @@ export default function SignUp() {
                 </p>
             </Card>
         </div>
+    );
+}
+
+export default function SignUp() {
+    return (
+        <Suspense fallback={<div>Loading...</div>}>
+            <SignUpContent />
+        </Suspense>
     );
 }
