@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, Heart, Calendar, Utensils, Activity, MessageCircle, User, LogOut, Zap } from 'lucide-react';
+import { Menu, X, Heart, Calendar, Utensils, Activity, MessageCircle, User, LogOut, Zap, Clock } from 'lucide-react';
 import { useSession, signOut } from "next-auth/react";
 import Button from './Button';
 
@@ -15,6 +15,7 @@ const Header: React.FC = () => {
     const navLinks = [
         { name: 'Dashboard', path: '/dashboard', icon: <User size={18} /> },
         { name: 'Tracker', path: '/tracker', icon: <Calendar size={18} /> },
+        { name: 'Appointments', path: '/appointments', icon: <Clock size={18} /> },
         { name: 'Nutrition', path: '/nutrition', icon: <Utensils size={18} /> },
         { name: 'Wellness', path: '/wellness', icon: <Activity size={18} /> },
         { name: 'AI Support', path: '/ai-support', icon: <MessageCircle size={18} /> },

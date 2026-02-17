@@ -34,7 +34,7 @@ export default function Home() {
             <p style={{ fontSize: '1.2rem', color: '#666', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
               Track your pregnancy, get personalized health tips, and find support—all in one place. Designed for moms, backed by experts.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <Link href="/tracker">
                 <Button size="lg">Start Your Journey <ArrowRight size={20} /></Button>
               </Link>
@@ -45,18 +45,20 @@ export default function Home() {
           </div>
 
           {/* Hero Image / Illustration */}
-          <div style={{
+          <div className="floating-illustration" style={{
             marginTop: '3.5rem',
             position: 'relative',
             borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
             boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-            aspectRatio: '16/7',
-            backgroundColor: '#f5f5f5'
+            aspectRatio: '16/8',
+            backgroundColor: '#fff',
+            maxWidth: '1000px',
+            margin: '3.5rem auto 0'
           }}>
             <img
-              src="https://images.unsplash.com/photo-1559734885-30319d77fba7?q=80&w=2070&auto=format&fit=crop"
-              alt="Serene pregnant woman"
+              src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=2070&auto=format&fit=crop"
+              alt="Baby and Mom"
               style={{
                 width: '100%',
                 height: '100%',
@@ -67,9 +69,15 @@ export default function Home() {
             <div style={{
               position: 'absolute',
               inset: 0,
-              background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,183,178,0.15) 100%)',
+              background: 'linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,183,178,0.2) 100%)',
               pointerEvents: 'none'
             }} />
+
+            {/* Cute floating elements */}
+            <div className="floating-icon" style={{ position: 'absolute', top: '15%', left: '8%', fontSize: '2.5rem', animation: 'float 5s ease-in-out infinite' }}>👶</div>
+            <div className="floating-icon" style={{ position: 'absolute', bottom: '20%', right: '10%', fontSize: '2rem', animation: 'bounce 4s ease-in-out infinite 0.5s' }}>🧸</div>
+            <div className="floating-icon" style={{ position: 'absolute', top: '25%', right: '15%', fontSize: '1.5rem', animation: 'float 6s ease-in-out infinite 1s' }}>✨</div>
+            <div className="floating-icon" style={{ position: 'absolute', bottom: '15%', left: '12%', fontSize: '1.8rem', animation: 'bounce 3s ease-in-out infinite' }}>🍼</div>
           </div>
         </div>
       </section>
@@ -77,7 +85,7 @@ export default function Home() {
       {/* Week Preview Section */}
       <section style={{ padding: '4rem 0' }}>
         <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div>
               <h2 style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>Your Week at a Glance</h2>
               <p style={{ color: '#666' }}>Currently tracking: <strong>Week 16 (Month 4)</strong></p>
@@ -85,7 +93,7 @@ export default function Home() {
             <Link href="/tracker"><Button variant="ghost">View Full Timeline <ArrowRight size={16} /></Button></Link>
           </div>
 
-          <div className="grid-cols-2">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
             <Card>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <div style={{
@@ -126,7 +134,7 @@ export default function Home() {
       <section style={{ padding: '4rem 0', backgroundColor: 'var(--white)' }}>
         <div className="container">
           <h2 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '3rem' }}>Why Moms Love NurtureNest</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
             <FeatureCard
               icon={<Heart color="var(--primary-color)" />}
               title="Health Tracking"
@@ -147,7 +155,7 @@ export default function Home() {
       </section>
     </div>
   );
-};
+}
 
 const FeatureCard = ({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) => (
   <div style={{ textAlign: 'center', padding: '1rem' }}>
