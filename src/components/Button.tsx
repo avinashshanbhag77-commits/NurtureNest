@@ -59,9 +59,8 @@ const Button: React.FC<ButtonProps> = ({
     return (
         <button
             style={buttonStyle}
+            className={`btn ${variant}`}
             {...props}
-            onMouseEnter={(e) => e.currentTarget.style.opacity = '0.9'}
-            onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
         >
             {children}
         </button>

@@ -4,6 +4,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -74,6 +75,18 @@ a {
   }
 }
 
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .floating-illustration {
   transition: all 0.5s ease;
 }
@@ -87,7 +100,7 @@ a {
 /* Responsive Utilities */
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 0 1.5rem;
 }
@@ -98,20 +111,128 @@ a {
   gap: 2rem;
 }
 
+/* Smooth Transitions & Evolution Loader */
+.nav-link {
+  transition: all var(--transition-smooth);
+}
+
+.nav-link:hover {
+  color: var(--primary-color) !important;
+  transform: translateY(-1px);
+}
+
+button,
+.btn {
+  transition: all var(--transition-smooth) !important;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 183, 178, 0.3) !important;
+}
+
+@keyframes evolution {
+  0% {
+    content: '🧬';
+    opacity: 0;
+    transform: scale(0.6);
+  }
+
+  20% {
+    content: '🧬';
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  40% {
+    content: '🥚';
+    transform: scale(1.1);
+  }
+
+  60% {
+    content: '🤰';
+    transform: scale(1.1);
+  }
+
+  80% {
+    content: '👶';
+    transform: scale(1.2);
+  }
+
+  100% {
+    content: '✨';
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+.evolution-loader::after {
+  content: '🧬';
+  font-size: 3.5rem;
+  animation: evolution 4s infinite ease-in-out;
+  display: inline-block;
+}
+
+.card {
+  transition: all var(--transition-smooth);
+}
+
+.card:hover {
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Global Mobile Overrides */
 @media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+
   .hero h1 {
-    font-size: 2.25rem !important;
+    font-size: 2rem !important;
+    line-height: 1.2 !important;
   }
 
   .hero p {
-    font-size: 1.1rem !important;
+    font-size: 1rem !important;
   }
 
   .floating-illustration {
-    aspect-ratio: 4/3 !important;
+    aspect-ratio: 16/10 !important;
+    margin-top: 2rem !important;
   }
 
   .floating-icon {
-    font-size: 1.5rem !important;
+    font-size: 1.2rem !important;
+  }
+
+  .grid-cols-2 {
+    gap: 1.5rem !important;
+    grid-template-columns: 1fr !important;
+  }
+
+  .card {
+    padding: 1.25rem !important;
+  }
+
+  section {
+    padding: 3rem 0 !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero {
+    padding: 2.5rem 0 !important;
+  }
+
+  .hero h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .evolution-loader::after {
+    font-size: 2.5rem !important;
+  }
+
+  .logo-text {
+    font-size: 1.1rem !important;
   }
 }

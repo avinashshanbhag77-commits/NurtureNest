@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Send, User, Sparkles } from 'lucide-react';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
+import LoadingEvolution from '../../components/LoadingEvolution';
 
 interface Message {
     id: number;
@@ -145,35 +146,8 @@ const AISupport: React.FC = () => {
 
                     {/* Loading indicator */}
                     {isLoading && (
-                        <div style={{
-                            alignSelf: 'flex-start',
-                            maxWidth: '80%',
-                            display: 'flex',
-                            gap: '0.5rem'
-                        }}>
-                            <div style={{
-                                width: '32px', height: '32px',
-                                borderRadius: '50%',
-                                backgroundColor: 'var(--primary-color)',
-                                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                flexShrink: 0
-                            }}>
-                                <Sparkles size={16} color="white" />
-                            </div>
-                            <div style={{
-                                backgroundColor: 'white',
-                                color: 'var(--text-color)',
-                                padding: '0.75rem 1rem',
-                                borderRadius: 'var(--radius-lg)',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-                                borderBottomLeftRadius: '4px'
-                            }}>
-                                <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center' }}>
-                                    <span style={{ animation: 'pulse 1.5s ease-in-out infinite' }}>●</span>
-                                    <span style={{ animation: 'pulse 1.5s ease-in-out 0.2s infinite' }}>●</span>
-                                    <span style={{ animation: 'pulse 1.5s ease-in-out 0.4s infinite' }}>●</span>
-                                </div>
-                            </div>
+                        <div style={{ alignSelf: 'flex-start', width: '100%' }}>
+                            <LoadingEvolution message="NurtureBot is gathering medical insights..." />
                         </div>
                     )}
                 </div>

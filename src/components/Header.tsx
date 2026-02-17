@@ -15,10 +15,10 @@ const Header: React.FC = () => {
     const navLinks = [
         { name: 'Dashboard', path: '/dashboard', icon: <User size={18} /> },
         { name: 'Tracker', path: '/tracker', icon: <Calendar size={18} /> },
-        { name: 'Appointments', path: '/appointments', icon: <Clock size={18} /> },
+        { name: 'Appts', path: '/appointments', icon: <Clock size={18} /> },
         { name: 'Nutrition', path: '/nutrition', icon: <Utensils size={18} /> },
         { name: 'Wellness', path: '/wellness', icon: <Activity size={18} /> },
-        { name: 'AI Support', path: '/ai-support', icon: <MessageCircle size={18} /> },
+        { name: 'AI', path: '/ai-support', icon: <MessageCircle size={18} /> },
         { name: 'Community', path: '/community', icon: <Heart size={18} /> },
         { name: 'Pricing', path: '/pricing', icon: <Zap size={18} /> },
     ];
@@ -35,11 +35,11 @@ const Header: React.FC = () => {
             boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
         }}>
             <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '70px' }}>
-                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}>
-                    <div style={{ backgroundColor: 'var(--primary-color)', padding: '6px', borderRadius: '50%', color: 'white', display: 'flex' }}>
-                        <Heart fill="white" size={20} />
+                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}>
+                    <div style={{ backgroundColor: 'var(--primary-color)', padding: '5px', borderRadius: '50%', color: 'white', display: 'flex' }}>
+                        <Heart fill="white" size={18} />
                     </div>
-                    <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-color)', letterSpacing: '-0.5px' }}>
+                    <span className="logo-text" style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-color)', letterSpacing: '-0.5px' }}>
                         NurtureNest
                     </span>
                 </Link>
@@ -57,8 +57,8 @@ const Header: React.FC = () => {
                                 gap: '0.4rem',
                                 color: isActive(link.path) ? 'var(--primary-color)' : 'var(--text-color)',
                                 fontWeight: isActive(link.path) ? 600 : 400,
-                                transition: 'color 0.2s',
-                                fontSize: '0.95rem'
+                                transition: 'all 0.3s ease',
+                                fontSize: '0.875rem'
                             }}
                         >
                             <span className="nav-icon">{link.icon}</span>
@@ -89,7 +89,16 @@ const Header: React.FC = () => {
                 <button
                     className="mobile-toggle"
                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    style={{ display: 'none', background: 'none', color: 'var(--text-color)' }}
+                    style={{
+                        display: 'none',
+                        background: 'rgba(255, 183, 178, 0.1)',
+                        color: 'var(--primary-color)',
+                        padding: '8px',
+                        borderRadius: '8px',
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                    }}
                 >
                     {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
                 </button>
@@ -98,16 +107,19 @@ const Header: React.FC = () => {
             {/* Mobile Nav Overlay */}
             {isMenuOpen && (
                 <div style={{
-                    position: 'absolute',
+                    position: 'fixed',
                     top: '70px',
                     left: 0,
                     right: 0,
-                    backgroundColor: 'white',
-                    padding: '1rem',
-                    boxShadow: '0 4px 6px rgba(0,0,0,0.05)',
+                    bottom: 0,
+                    backgroundColor: 'rgba(255,255,255,0.98)',
+                    zIndex: 99,
+                    padding: '2rem 1.5rem',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '1rem'
+                    gap: '0.75rem',
+                    animation: 'fadeIn 0.3s ease',
+                    overflowY: 'auto'
                 }}>
                     {navLinks.map((link) => (
                         <Link
@@ -115,47 +127,53 @@ const Header: React.FC = () => {
                             href={link.path}
                             onClick={() => setIsMenuOpen(false)}
                             style={{
-                                padding: '0.75rem',
-                                borderRadius: 'var(--radius-md)',
-                                backgroundColor: isActive(link.path) ? 'var(--light-gray)' : 'transparent',
+                                padding: '1rem',
+                                borderRadius: '12px',
+                                backgroundColor: isActive(link.path) ? 'rgba(255, 183, 178, 0.15)' : '#f8f8f8',
+                                color: isActive(link.path) ? 'var(--primary-color)' : 'var(--text-color)',
+                                fontWeight: isActive(link.path) ? 700 : 500,
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.75rem'
+                                gap: '1rem',
+                                fontSize: '1.1rem'
                             }}
                         >
-                            {link.icon}
+                            <span style={{ color: isActive(link.path) ? 'var(--primary-color)' : '#666' }}>{link.icon}</span>
                             {link.name}
                         </Link>
                     ))}
-                    <div style={{ borderTop: '1px solid #eee', margin: '0.5rem 0' }}></div>
+                    <div style={{ borderTop: '1px solid #eee', margin: '1rem 0' }}></div>
                     {session ? (
-                        <>
-                            <div style={{ padding: '0.5rem', fontWeight: 600 }}>Hi, {session.user?.name}</div>
-                            <Button fullWidth variant="outline" onClick={() => { signOut(); setIsMenuOpen(false); }}>
-                                <LogOut size={16} /> Logout
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ padding: '0.5rem', fontWeight: 600, fontSize: '1.2rem' }}>Hi, {session.user?.name}</div>
+                            <Button fullWidth size="lg" variant="outline" onClick={() => { signOut(); setIsMenuOpen(false); }}>
+                                <LogOut size={20} /> Logout
                             </Button>
-                        </>
+                        </div>
                     ) : (
-                        <>
-                            <Link href="/auth/signin" onClick={() => setIsMenuOpen(false)}>
-                                <Button fullWidth variant="ghost">Login</Button>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <Link href="/auth/signin" onClick={() => setIsMenuOpen(false)} style={{ textDecoration: 'none' }}>
+                                <Button fullWidth size="lg" variant="ghost">Login</Button>
                             </Link>
-                            <Link href="/auth/signup" onClick={() => setIsMenuOpen(false)}>
-                                <Button fullWidth>Sign Up</Button>
+                            <Link href="/auth/signup" onClick={() => setIsMenuOpen(false)} style={{ textDecoration: 'none' }}>
+                                <Button fullWidth size="lg">Sign Up</Button>
                             </Link>
-                        </>
+                        </div>
                     )}
                 </div>
             )}
 
             <style>{`
-        @media (max-width: 1100px) {
+        @media (max-width: 1280px) {
           .nav-icon { display: none; }
           .desktop-nav { gap: 0.8rem !important; }
         }
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
           .desktop-nav { display: none !important; }
           .mobile-toggle { display: block !important; }
+        }
+        @media (max-width: 480px) {
+          .logo-text { font-size: 1.1rem !important; }
         }
       `}</style>
         </header>

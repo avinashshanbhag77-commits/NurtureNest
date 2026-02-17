@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "../components/Header";
+import Footer from "../components/Footer";
 import Providers from "../components/Providers";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -20,24 +21,12 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <div className="app-container">
+          <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header />
-            <main className="main-content" style={{ minHeight: 'calc(100vh - 70px - 200px)' }}>
+            <main className="main-content" style={{ flex: 1 }}>
               {children}
             </main>
-            <footer style={{ backgroundColor: 'var(--secondary-color)', padding: '3rem 0', marginTop: 'auto' }}>
-              <div className="container" style={{ textAlign: 'center', color: 'var(--text-color)' }}>
-                <h3 style={{ margin: '0 0 1rem' }}>NurtureNest</h3>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
-                  <a href="#">About Us</a>
-                  <a href="#">Privacy Policy</a>
-                  <a href="#">Contact</a>
-                </div>
-                <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>
-                  &copy; {new Date().getFullYear()} NurtureNest. Made with ❤️ by <strong>Avinash Shanbhag</strong>. All rights reserved.
-                </p>
-              </div>
-            </footer>
+            <Footer />
           </div>
         </Providers>
       </body>

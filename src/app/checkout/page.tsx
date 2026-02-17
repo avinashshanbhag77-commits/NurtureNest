@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Card from '@/components/Card';
 import Button from '@/components/Button';
 import { CreditCard, Lock, ShieldCheck, ChevronLeft } from 'lucide-react';
+import LoadingEvolution from '@/components/LoadingEvolution';
 
 const CheckoutContent = () => {
     const searchParams = useSearchParams();
@@ -122,7 +123,11 @@ const CheckoutContent = () => {
                         </div>
 
                         <Button fullWidth size="lg" disabled={loading}>
-                            {loading ? 'Processing...' : `Pay ${getPrice().split('/')[0]}`}
+                            {loading ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', transform: 'scale(0.5)' }}>
+                                    <div className="evolution-loader" style={{ fontSize: '1rem' }} /> Processing...
+                                </div>
+                            ) : `Pay ${getPrice().split('/')[0]}`}
                         </Button>
                     </form>
                 </Card>
