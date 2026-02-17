@@ -33,7 +33,9 @@ export default function RootLayout({
                   <a href="#">Privacy Policy</a>
                   <a href="#">Contact</a>
                 </div>
-                <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>&copy; 2026 NurtureNest. All rights reserved.</p>
+                <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>
+                  &copy; {new Date().getFullYear()} NurtureNest. Made with ❤️ by <strong>Avinash Shanbhag</strong>. All rights reserved.
+                </p>
               </div>
             </footer>
           </div>

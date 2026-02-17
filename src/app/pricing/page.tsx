@@ -5,33 +5,25 @@ import Card from '@/components/Card';
 import Button from '@/components/Button';
 import { Check, Star, Zap, Crown } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 const PricingPage = () => {
     const { data: session } = useSession();
+    const router = useRouter();
     const [loading, setLoading] = useState<string | null>(null);
 
-    const handleUpgrade = async (tier: string) => {
+    const handleUpgrade = (tier: string) => {
         if (!session) {
-            window.location.href = '/auth/signin';
+            window.location.href = `/auth/signin?callbackUrl=/pricing`;
             return;
         }
-        setLoading(tier);
-        // Simulate payment/upgrade
-        try {
-            const res = await fetch('/api/user/upgrade', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ tier })
-            });
-            if (res.ok) {
-                alert(`Successfully upgraded to ${tier.charAt(0).toUpperCase() + tier.slice(1)}!`);
-                window.location.reload();
-            }
-        } catch (error) {
-            console.error('Upgrade failed', error);
-        } finally {
-            setLoading(null);
+
+        if (tier === 'free') {
+            alert('You are already on the Free Plan.');
+            return;
         }
+
+        router.push(`/checkout?tier=${tier}`);
     };
 
     const tiers = [

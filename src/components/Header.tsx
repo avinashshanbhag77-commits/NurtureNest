@@ -44,21 +44,23 @@ const Header: React.FC = () => {
                 </Link>
 
                 {/* Desktop Nav */}
-                <nav className="desktop-nav" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+                <nav className="desktop-nav" style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
                     {navLinks.map((link) => (
                         <Link
                             key={link.name}
                             href={link.path}
+                            className="nav-link"
                             style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '0.5rem',
+                                gap: '0.4rem',
                                 color: isActive(link.path) ? 'var(--primary-color)' : 'var(--text-color)',
                                 fontWeight: isActive(link.path) ? 600 : 400,
-                                transition: 'color 0.2s'
+                                transition: 'color 0.2s',
+                                fontSize: '0.95rem'
                             }}
                         >
-                            {link.icon}
+                            <span className="nav-icon">{link.icon}</span>
                             {link.name}
                         </Link>
                     ))}
@@ -146,6 +148,10 @@ const Header: React.FC = () => {
             )}
 
             <style>{`
+        @media (max-width: 1100px) {
+          .nav-icon { display: none; }
+          .desktop-nav { gap: 0.8rem !important; }
+        }
         @media (max-width: 768px) {
           .desktop-nav { display: none !important; }
           .mobile-toggle { display: block !important; }
