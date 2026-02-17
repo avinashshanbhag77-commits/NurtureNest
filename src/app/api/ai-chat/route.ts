@@ -119,14 +119,14 @@ Remember: You're a support companion, not a medical professional.`
 
             console.error(`SERVER: OpenRouter API error (Status ${status} ${statusText}):`, errorData || errorText);
 
-            // Construct a cleaner error response for the client
+            // Construct details for internal logging
             const finalDetails = (errorData && Object.keys(errorData).length > 0)
                 ? errorData
                 : (errorText ? errorText.substring(0, 200) : 'No error details available');
 
             return NextResponse.json({
                 error: 'AI service error',
-                message: `The AI service returned a ${status} error (${statusText}).`,
+                message: `The AI service returned a ${status} error. ${errorData?.error?.message || ''}`,
                 details: finalDetails,
                 status: status
             }, { status: 500 });

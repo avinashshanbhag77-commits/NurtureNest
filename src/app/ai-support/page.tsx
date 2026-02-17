@@ -76,14 +76,14 @@ const AISupport: React.FC = () => {
             }]);
         } catch (error: any) {
             console.error('Error sending message:', error);
-            const isLimitError = error.message.includes('Limit Reached') || error.message.includes('limited to');
+            const errorMessage = error.message || "I'm sorry, I'm having trouble connecting right now.";
 
             setMessages(prev => [...prev, {
                 id: Date.now() + 1,
                 sender: 'ai',
-                text: isLimitError
-                    ? `${error.message} Please visit our Pricing page to upgrade.`
-                    : "I'm sorry, I'm having trouble connecting right now. Please try again in a moment."
+                text: errorMessage.includes('Limit Reached')
+                    ? `${errorMessage} Please visit our Pricing page to upgrade.`
+                    : `${errorMessage} (Please check the API configuration in Vercel settings).`
             }]);
         } finally {
             setIsLoading(false);
