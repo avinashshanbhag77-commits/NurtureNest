@@ -1,0 +1,36 @@
+:root {
+  /* Primary Pastel Palette */
+  --primary-color: #FFB7B2; /* Soft Peach */
+  --secondary-color: #B5EAD7; /* Mint Green */
+  --accent-color: #C7CEEA; /* Periwinkle/Lavender */
+  --background-color: #FFDAC1; /* Light Apricot/Cream */
+  --text-color: #4A4A4A; /* Soft Dark Grey for readability */
+  --white: #FFFFFF;
+  --light-gray: #F7F7F7;
+
+  /* Typography */
+  --font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  
+  /* Spacing */
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 2rem;
+  
+  /* BorderRadius */
+  --radius-md: 12px;
+  --radius-lg: 20px;
+}
+
+body {
+  background-color: var(--light-gray);
+  color: var(--text-color);
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--text-color);
+  font-weight: 600;
+}
