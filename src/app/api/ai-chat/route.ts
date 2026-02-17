@@ -55,7 +55,7 @@ Remember: You're a support companion, not a medical professional.`
                 'X-Title': 'NurtureNest'
             },
             body: JSON.stringify({
-                model: 'google/gemini-flash-1.5-exp:free', // Using a more stable free model
+                model: 'meta-llama/llama-3.3-70b-instruct:free', // Using a stable verified free model
                 messages: messages,
                 temperature: 0.7,
                 max_tokens: 500
