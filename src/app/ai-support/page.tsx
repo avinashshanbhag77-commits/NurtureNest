@@ -47,7 +47,9 @@ const AISupport: React.FC = () => {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to get AI response');
+                const errorData = await response.json().catch(() => ({}));
+                console.error('AI API Error:', errorData);
+                throw new Error(errorData.error || 'Failed to get AI response');
             }
 
             const data = await response.json();

@@ -11,8 +11,11 @@ export async function POST(req: Request) {
         const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
         if (!OPENROUTER_API_KEY) {
-            console.error('OPENROUTER_API_KEY is not set');
-            return NextResponse.json({ error: 'AI service not configured' }, { status: 500 });
+            console.error('SERVER ERROR: OPENROUTER_API_KEY is missing from environment variables');
+            return NextResponse.json({
+                error: 'AI service not configured',
+                details: 'API key is missing on the server'
+            }, { status: 500 });
         }
 
         // Build messages array for the AI
