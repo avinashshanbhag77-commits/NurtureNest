@@ -13,6 +13,9 @@ export const config = {
         "/wellness",
         "/ai-support",
         "/community",
-        "/dashboard", // Future proofing
+        "/dashboard",
+        "/appointments",
+        "/pricing",
+        "/checkout"
     ],
 };

@@ -4,6 +4,8 @@ import { authOptions } from '../auth/[...nextauth]/route';
 import dbConnect from '@/lib/mongodb';
 import Appointment from '@/models/Appointment';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -25,6 +27,8 @@ export async function GET(req: NextRequest) {
             userId: user._id,
             status: { $ne: 'CANCELLED' }
         }).sort({ date: 1 });
+
+        console.log(`Fetched ${appointments.length} active appointments for user ${user._id}`);
         return NextResponse.json(appointments);
     } catch (error) {
         console.error('Fetch appointments error:', error);
@@ -56,7 +60,8 @@ export async function POST(req: NextRequest) {
             doctorName: data.doctorName,
             location: data.location,
             type: data.type,
-            notes: data.notes
+            notes: data.notes,
+            symptoms: data.symptoms
         });
 
         await newAppointment.save();

@@ -15,14 +15,32 @@ interface AppointmentType {
     location?: string;
     type: string;
     notes?: string;
+    symptoms?: string;
     status: string;
 }
+
+const formatIST = (dateString: string) => {
+    return new Intl.DateTimeFormat('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        dateStyle: 'medium',
+        timeStyle: 'short'
+    }).format(new Date(dateString));
+};
+
+const SUGGESTED_DOCTORS = [
+    "Dr. Ananya Sharma (OB/GYN)",
+    "Dr. Rajesh Iyer (Pediatrician)",
+    "Dr. Sneha Patil (Fetal Medicine)",
+    "Dr. Vikram Reddy (General Surgeon)",
+    "Dr. Meera Kapoor (Nutritionist)"
+];
 
 const AppointmentsPage = () => {
     const { data: session } = useSession();
     const [appointments, setAppointments] = useState<AppointmentType[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [viewingAppt, setViewingAppt] = useState<AppointmentType | null>(null);
     const [message, setMessage] = useState('');
     const [newAppt, setNewAppt] = useState({
         title: '',
@@ -30,7 +48,8 @@ const AppointmentsPage = () => {
         doctorName: '',
         location: '',
         type: 'Checkup',
-        notes: ''
+        notes: '',
+        symptoms: ''
     });
 
     useEffect(() => {
@@ -41,10 +60,11 @@ const AppointmentsPage = () => {
 
     const fetchAppointments = async () => {
         try {
-            const res = await fetch('/api/appointments');
+            const res = await fetch(`/api/appointments?t=${Date.now()}`, { cache: 'no-store' });
             const data = await res.json();
             if (res.ok) {
-                setAppointments(data);
+                // Double check filtering on frontend
+                setAppointments(data.filter((a: any) => a.status !== 'CANCELLED'));
             }
         } catch (error) {
             console.error('Error fetching appointments:', error);
@@ -75,7 +95,8 @@ const AppointmentsPage = () => {
                     doctorName: '',
                     location: '',
                     type: 'Checkup',
-                    notes: ''
+                    notes: '',
+                    symptoms: ''
                 });
             }
         } catch (error) {
@@ -88,8 +109,10 @@ const AppointmentsPage = () => {
         setAppointments(appointments.filter(a => a._id !== id));
 
         try {
+            console.log(`Attempting to cancel appointment: ${id}`);
             const res = await fetch(`/api/appointments/${id}`, {
                 method: 'DELETE',
+                cache: 'no-store'
             });
             if (!res.ok) {
                 setAppointments(originalAppointments);
@@ -154,8 +177,8 @@ const AppointmentsPage = () => {
                                 exit={{ opacity: 0, height: 0, marginBottom: 0, overflow: 'hidden' }}
                                 transition={{ duration: 0.3 }}
                             >
-                                <Card style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 2rem' }}>
-                                    <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+                                <Card style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', padding: '1.5rem' }}>
+                                    <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                                         <div style={{
                                             backgroundColor: 'var(--secondary-color)',
                                             padding: '1rem',
@@ -201,12 +224,13 @@ const AppointmentsPage = () => {
                                             </span>
                                             <ChevronRight color="#ccc" />
                                         </div>
-                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'flex-start' }}>
                                             <Button size="sm" variant="outline" onClick={() => {
                                                 if (confirm('Are you sure you want to cancel this appointment?')) {
                                                     handleCancel(appt._id);
                                                 }
                                             }}>Cancel</Button>
+                                            <Button size="sm" variant="outline" style={{ color: 'var(--primary-color)' }} onClick={() => setViewingAppt(appt)}>Details</Button>
                                             <Button size="sm" variant="ghost" onClick={() => {
                                                 setNewAppt({
                                                     title: appt.title,
@@ -214,7 +238,8 @@ const AppointmentsPage = () => {
                                                     doctorName: appt.doctorName || '',
                                                     location: appt.location || '',
                                                     type: appt.type,
-                                                    notes: appt.notes || ''
+                                                    notes: appt.notes || '',
+                                                    symptoms: appt.symptoms || ''
                                                 });
                                                 setShowModal(true);
                                             }}>Reschedule</Button>
@@ -269,10 +294,14 @@ const AppointmentsPage = () => {
                                     <input
                                         type="text"
                                         placeholder="Dr. Smith"
+                                        list="doctor-suggestions"
                                         value={newAppt.doctorName}
                                         onChange={(e) => setNewAppt({ ...newAppt, doctorName: e.target.value })}
                                         style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-sm)', border: '1px solid #ddd' }}
                                     />
+                                    <datalist id="doctor-suggestions">
+                                        {SUGGESTED_DOCTORS.map(doc => <option key={doc} value={doc} />)}
+                                    </datalist>
                                 </div>
                                 <div>
                                     <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Type</label>
@@ -303,10 +332,21 @@ const AppointmentsPage = () => {
                             <div>
                                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Notes</label>
                                 <textarea
-                                    rows={3}
+                                    rows={2}
                                     placeholder="Any specific questions for the doctor..."
                                     value={newAppt.notes}
                                     onChange={(e) => setNewAppt({ ...newAppt, notes: e.target.value })}
+                                    style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-sm)', border: '1px solid #ddd', resize: 'none' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Symptoms (if any)</label>
+                                <textarea
+                                    rows={2}
+                                    placeholder="Mention any symptoms like nausea, back pain, etc."
+                                    value={newAppt.symptoms}
+                                    onChange={(e) => setNewAppt({ ...newAppt, symptoms: e.target.value })}
                                     style={{ width: '100%', padding: '0.8rem', borderRadius: 'var(--radius-sm)', border: '1px solid #ddd', resize: 'none' }}
                                 />
                             </div>
@@ -316,6 +356,54 @@ const AppointmentsPage = () => {
                                 <Button fullWidth variant="outline" type="button" onClick={() => setShowModal(false)}>Cancel</Button>
                             </div>
                         </form>
+                    </Card>
+                </div>
+            )}
+
+            {viewingAppt && (
+                <div style={{
+                    position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
+                    padding: '1rem'
+                }}>
+                    <Card style={{ maxWidth: '500px', width: '100%' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                            <h2 style={{ color: 'var(--primary-color)' }}>Appointment Details</h2>
+                            <Button variant="ghost" onClick={() => setViewingAppt(null)}>&times;</Button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ fontSize: '1.1rem', fontWeight: 700 }}>{viewingAppt.title}</div>
+                            <div style={{ display: 'flex', gap: '1rem', color: '#666' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Calendar size={18} /> {formatIST(viewingAppt.date)}</span>
+                            </div>
+
+                            {viewingAppt.doctorName && (
+                                <div><strong>Doctor:</strong> {viewingAppt.doctorName}</div>
+                            )}
+
+                            {viewingAppt.location && (
+                                <div><strong>Location:</strong> {viewingAppt.location}</div>
+                            )}
+
+                            {viewingAppt.symptoms && (
+                                <div style={{ backgroundColor: '#fff5f5', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid #feb2b2' }}>
+                                    <strong>Symptoms recorded:</strong>
+                                    <p style={{ margin: '0.5rem 0 0', color: '#4a5568' }}>{viewingAppt.symptoms}</p>
+                                </div>
+                            )}
+
+                            {viewingAppt.notes && (
+                                <div style={{ backgroundColor: '#f0f9ff', padding: '1rem', borderRadius: 'var(--radius-sm)', borderLeft: '4px solid #3182ce' }}>
+                                    <strong>Additional Notes:</strong>
+                                    <p style={{ margin: '0.5rem 0 0', color: '#2d3748' }}>{viewingAppt.notes}</p>
+                                </div>
+                            )}
+
+                            <div style={{ borderTop: '1px solid #eee', paddingTop: '1rem', marginTop: '1rem' }}>
+                                <Button fullWidth onClick={() => setViewingAppt(null)}>Close</Button>
+                            </div>
+                        </div>
                     </Card>
                 </div>
             )}

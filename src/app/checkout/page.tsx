@@ -6,10 +6,12 @@ import Card from '@/components/Card';
 import Button from '@/components/Button';
 import { CreditCard, Lock, ShieldCheck, ChevronLeft } from 'lucide-react';
 import LoadingEvolution from '@/components/LoadingEvolution';
+import { useSession } from 'next-auth/react';
 
 const CheckoutContent = () => {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { update } = useSession();
     const tier = searchParams.get('tier') || 'pro';
 
     const [loading, setLoading] = useState(false);
@@ -39,6 +41,9 @@ const CheckoutContent = () => {
                 });
 
                 if (res.ok) {
+                    // Update session locally
+                    if (update) await update({ subscriptionTier: tier });
+
                     alert('Payment Successful! Your account has been upgraded.');
                     router.push('/dashboard');
                 } else {

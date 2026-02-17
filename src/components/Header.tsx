@@ -36,22 +36,17 @@ const Header: React.FC = () => {
             boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
         }}>
             <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '70px' }}>
-                <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', marginRight: '3.5rem' }}>
-                    <img
-                        src="/logo.png"
-                        alt="NurtureNest"
-                        style={{
-                            height: '42px',
-                            width: 'auto',
-                            transition: 'transform 0.3s ease'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                    />
+                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none', marginRight: '1.5rem', flexShrink: 0 }}>
+                    <div style={{ backgroundColor: 'var(--primary-color)', padding: '5px', borderRadius: '50%', color: 'white', display: 'flex' }}>
+                        <Heart fill="white" size={18} />
+                    </div>
+                    <span className="logo-text" style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-color)', letterSpacing: '-0.5px' }}>
+                        NurtureNest
+                    </span>
                 </Link>
 
                 {/* Desktop Nav */}
-                <nav className="desktop-nav" style={{ display: 'flex', gap: '1.75rem', alignItems: 'center' }}>
+                <nav className="desktop-nav" style={{ display: 'flex', gap: '1.25rem', alignItems: 'center', flex: 1, justifyContent: 'center' }}>
                     {navLinks.map((link) => (
                         <motion.div
                             key={link.name}
@@ -130,15 +125,17 @@ const Header: React.FC = () => {
                     top: '70px',
                     left: 0,
                     right: 0,
-                    bottom: 0,
+                    width: '100%',
+                    height: 'calc(100vh - 70px)',
                     backgroundColor: 'rgba(255,255,255,0.98)',
-                    zIndex: 99,
+                    zIndex: 1001,
                     padding: '2rem 1.5rem',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '0.75rem',
                     animation: 'fadeIn 0.3s ease',
-                    overflowY: 'auto'
+                    overflowY: 'auto',
+                    boxShadow: '0 10px 20px rgba(0,0,0,0.1)'
                 }}>
                     {navLinks.map((link) => (
                         <Link
@@ -146,18 +143,18 @@ const Header: React.FC = () => {
                             href={link.path}
                             onClick={() => setIsMenuOpen(false)}
                             style={{
-                                padding: '1rem',
-                                borderRadius: '12px',
+                                padding: '0.75rem 1rem',
+                                borderRadius: '10px',
                                 backgroundColor: isActive(link.path) ? 'rgba(255, 183, 178, 0.15)' : '#f8f8f8',
                                 color: isActive(link.path) ? 'var(--primary-color)' : 'var(--text-color)',
                                 fontWeight: isActive(link.path) ? 700 : 500,
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '1rem',
-                                fontSize: '1.1rem'
+                                fontSize: '1rem'
                             }}
                         >
-                            <span style={{ color: isActive(link.path) ? 'var(--primary-color)' : '#666' }}>{link.icon}</span>
+                            <span style={{ color: isActive(link.path) ? 'var(--primary-color)' : '#666', display: 'flex' }}>{link.icon}</span>
                             {link.name}
                         </Link>
                     ))}
@@ -183,16 +180,16 @@ const Header: React.FC = () => {
             )}
 
             <style>{`
-        @media (max-width: 1280px) {
+        @media (max-width: 1400px) {
           .nav-icon { display: none; }
-          .desktop-nav { gap: 0.8rem !important; }
+          .desktop-nav { gap: 0.6rem !important; }
         }
-        @media (max-width: 1024px) {
+        @media (max-width: 1250px) {
           .desktop-nav { display: none !important; }
           .mobile-toggle { display: block !important; }
         }
         @media (max-width: 480px) {
-          .logo-text { font-size: 1.1rem !important; }
+          .logo-text { display: none !important; }
         }
       `}</style>
         </header>

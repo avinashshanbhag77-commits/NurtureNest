@@ -14,21 +14,21 @@ export async function DELETE(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        await dbConnect();
         const { id } = await params;
 
-        console.log(`Cancelling appointment with ID: ${id}`);
+        const User = (await import('@/models/User')).default;
+        const user = await User.findOne({ email: session.user.email });
+        if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 });
 
-        const updated = await Appointment.findByIdAndUpdate(id, {
-            status: 'CANCELLED',
-            $push: { statusLog: { status: 'CANCELLED', message: 'Appointment cancelled by user', timestamp: new Date() } }
-        }, { new: true });
+        const deleted = await Appointment.deleteOne({ _id: id, userId: user._id });
 
-        if (!updated) {
+        if (deleted.deletedCount === 0) {
+            console.error(`Appointment ${id} not found or unauthorized for user ${user._id}`);
             return NextResponse.json({ error: 'Appointment not found' }, { status: 404 });
         }
 
-        return NextResponse.json({ message: 'Appointment cancelled' });
+        console.log(`Successfully deleted appointment: ${id}`);
+        return NextResponse.json({ message: 'Appointment deleted successfully', id });
     } catch (error) {
         console.error('Delete appointment error:', error);
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

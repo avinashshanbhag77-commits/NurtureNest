@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { ArrowRight, Heart, Shield, Activity, Smile } from 'lucide-react';
+import { ArrowRight, Heart, Shield, Activity, Smile, ChevronRight } from 'lucide-react';
 import Button from '../components/Button';
 import Card from '../components/Card';
 import ParticlesBackground from '../components/ParticlesBackground';
@@ -39,11 +39,13 @@ export default function Home() {
               Track your pregnancy, get personalized health tips, and find support—all in one place. Designed for moms, backed by experts.
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 2 }}>
-              <Link href="/tracker">
-                <Button size="lg" style={{ boxShadow: '0 10px 20px rgba(255, 183, 178, 0.4)' }}>Start Your Journey <ArrowRight size={20} /></Button>
+              <Link href="/dashboard">
+                <Button size="lg" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem 2rem', boxShadow: '0 10px 20px rgba(255, 183, 178, 0.4)' }}>
+                  Start Your Journey <ChevronRight size={20} />
+                </Button>
               </Link>
               <Link href="/about">
-                <Button variant="outline" size="lg">Learn More</Button>
+                <Button variant="outline" size="lg" style={{ padding: '1rem 2rem' }}>Learn More</Button>
               </Link>
             </div>
           </div>
