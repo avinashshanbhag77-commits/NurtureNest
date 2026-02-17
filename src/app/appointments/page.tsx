@@ -76,6 +76,19 @@ const AppointmentsPage = () => {
         }
     };
 
+    const handleCancel = async (id: string) => {
+        try {
+            const res = await fetch(`/api/appointments/${id}`, {
+                method: 'DELETE',
+            });
+            if (res.ok) {
+                fetchAppointments();
+            }
+        } catch (error) {
+            console.error('Error cancelling appointment:', error);
+        }
+    };
+
     if (!session) return <div className="container" style={{ padding: '4rem 1rem', textAlign: 'center' }}>Please sign in to view appointments.</div>;
 
     return (
@@ -135,17 +148,38 @@ const AppointmentsPage = () => {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                                <span style={{
-                                    padding: '0.4rem 1rem',
-                                    borderRadius: '50px',
-                                    backgroundColor: 'var(--light-gray)',
-                                    fontSize: '0.8rem',
-                                    fontWeight: 600
-                                }}>
-                                    {appt.type}
-                                </span>
-                                <ChevronRight color="#ccc" />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'flex-end' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                    <span style={{
+                                        padding: '0.4rem 1rem',
+                                        borderRadius: '50px',
+                                        backgroundColor: appt.status === 'CANCELLED' ? '#ffeded' : 'var(--light-gray)',
+                                        color: appt.status === 'CANCELLED' ? '#ff6b6b' : 'inherit',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 600
+                                    }}>
+                                        {appt.status}
+                                    </span>
+                                    <ChevronRight color="#ccc" />
+                                </div>
+                                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                    <Button size="sm" variant="outline" onClick={() => {
+                                        if (confirm('Are you sure you want to cancel this appointment?')) {
+                                            handleCancel(appt._id);
+                                        }
+                                    }}>Cancel</Button>
+                                    <Button size="sm" variant="ghost" onClick={() => {
+                                        setNewAppt({
+                                            title: appt.title,
+                                            date: new Date(appt.date).toISOString().slice(0, 16),
+                                            doctorName: appt.doctorName || '',
+                                            location: appt.location || '',
+                                            type: appt.type,
+                                            notes: appt.notes || ''
+                                        });
+                                        setShowModal(true);
+                                    }}>Reschedule</Button>
+                                </div>
                             </div>
                         </Card>
                     ))}

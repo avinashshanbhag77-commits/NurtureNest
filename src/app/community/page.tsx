@@ -3,9 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Card from '../../components/Card';
 import Button from '../../components/Button';
-import { MessageCircle, Heart, Share2, Send, X } from 'lucide-react';
+import { MessageCircle, Heart, Share2, Send, X, Trash2 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 
 const Community: React.FC = () => {
+    const { data: session } = useSession();
     const [posts, setPosts] = useState<any[]>([]);
     const [showPostModal, setShowPostModal] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -45,6 +47,20 @@ const Community: React.FC = () => {
             console.error('Failed to create post', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleDeletePost = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this discussion?')) return;
+        try {
+            const res = await fetch(`/api/community/posts/${id}`, {
+                method: 'DELETE',
+            });
+            if (res.ok) {
+                fetchPosts();
+            }
+        } catch (error) {
+            console.error('Failed to delete post', error);
         }
     };
 
@@ -99,12 +115,26 @@ const Community: React.FC = () => {
                                 <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#666' }}>
                                     {post.userName?.charAt(0) || post.user?.charAt(0) || '?'}
                                 </div>
-                                <div>
-                                    <span style={{ fontWeight: 600 }}>{post.userName || post.user}</span>
-                                    <span style={{ fontSize: '0.8rem', color: '#888', marginLeft: '0.5rem' }}>• {post.userWeek || post.week}</span>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                        <div>
+                                            <span style={{ fontWeight: 600 }}>{post.userName || post.user}</span>
+                                            <span style={{ fontSize: '0.8rem', color: '#888', marginLeft: '0.5rem' }}>• {post.userWeek || post.week}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                            {post.isPinned && <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 600 }}>Pinned</span>}
+                                            {session?.user?.name === (post.userName || post.user) && (
+                                                <button
+                                                    onClick={() => handleDeletePost(post._id || post.id)}
+                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff6b6b', opacity: 0.7 }}
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            {post.isPinned && <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 600 }}>Pinned</span>}
                         </div>
 
                         <h3 style={{ margin: '0.5rem 0' }}>{post.title}</h3>

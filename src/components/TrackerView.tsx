@@ -103,7 +103,7 @@ const TrackerView: React.FC<TrackerViewProps> = ({ initialWeek, hasDueDate }) =>
     };
 
     return (
-        <div className="tracker-page">
+        <div className="tracker-page" style={{ paddingTop: '20px' }}>
             <div className="container">
                 {/* Due Date Modal / Prompt */}
                 {showDueDateModal && (

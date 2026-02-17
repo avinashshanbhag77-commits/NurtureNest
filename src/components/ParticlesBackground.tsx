@@ -6,7 +6,7 @@ const ParticlesBackground: React.FC = () => {
     const [particles, setParticles] = useState<number[]>([]);
 
     useEffect(() => {
-        setParticles(Array.from({ length: 15 }, (_, i) => i));
+        setParticles(Array.from({ length: 25 }, (_, i) => i));
     }, []);
 
     return (
@@ -15,7 +15,7 @@ const ParticlesBackground: React.FC = () => {
             inset: 0,
             overflow: 'hidden',
             pointerEvents: 'none',
-            zIndex: 0
+            zIndex: -1
         }}>
             {particles.map((i) => (
                 <div
@@ -25,13 +25,13 @@ const ParticlesBackground: React.FC = () => {
                         position: 'absolute',
                         top: `${Math.random() * 100}%`,
                         left: `${Math.random() * 100}%`,
-                        width: `${Math.random() * 10 + 5}px`,
-                        height: `${Math.random() * 10 + 5}px`,
-                        backgroundColor: i % 2 === 0 ? 'var(--primary-color)' : 'var(--secondary-color)',
+                        width: `${Math.random() * 15 + 8}px`,
+                        height: `${Math.random() * 15 + 8}px`,
+                        backgroundColor: i % 3 === 0 ? 'var(--primary-color)' : i % 3 === 1 ? 'var(--secondary-color)' : 'var(--accent-color)',
                         borderRadius: '50%',
-                        opacity: 0.15,
-                        filter: 'blur(2px)',
-                        animation: `float-particle ${Math.random() * 10 + 10}s linear infinite`,
+                        opacity: 0.3,
+                        filter: 'blur(3px)',
+                        animation: `float-particle ${Math.random() * 15 + 15}s linear infinite`,
                         animationDelay: `${Math.random() * 5}s`
                     }}
                 />

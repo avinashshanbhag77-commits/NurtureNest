@@ -11,9 +11,11 @@ export default function Home() {
       <ParticlesBackground />
       {/* Hero Section */}
       <section className="hero" style={{
-        padding: '4rem 0',
+        padding: '6rem 0 4rem',
         textAlign: 'center',
-        background: 'linear-gradient(180deg, var(--background-color) 0%, rgba(255,255,255,0) 100%)'
+        background: 'linear-gradient(180deg, var(--background-color) 0%, rgba(255,183,178,0.1) 100%)',
+        position: 'relative',
+        zIndex: 1
       }}>
         <div className="container">
           <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1, padding: '0 1rem' }}>
@@ -48,15 +50,16 @@ export default function Home() {
 
           {/* Hero Image / Illustration */}
           <div className="floating-illustration" style={{
-            marginTop: '3.5rem',
+            marginTop: '5rem',
             position: 'relative',
             borderRadius: 'var(--radius-lg)',
             overflow: 'hidden',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-            aspectRatio: '16/8',
+            boxShadow: '0 30px 60px rgba(0,0,0,0.12)',
+            aspectRatio: '16/9',
             backgroundColor: '#fff',
             maxWidth: '1000px',
-            margin: '3.5rem auto 0'
+            margin: '5rem auto 2rem',
+            zIndex: 1
           }}>
             <img
               src="https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=2070&auto=format&fit=crop"
