@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Heart, Calendar, Utensils, Activity, MessageCircle, User, LogOut, Zap, Clock } from 'lucide-react';
 import { useSession, signOut } from "next-auth/react";
+import { motion } from 'framer-motion';
 import Button from './Button';
 
 const Header: React.FC = () => {
@@ -35,40 +36,58 @@ const Header: React.FC = () => {
             boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
         }}>
             <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '70px' }}>
-                <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none' }}>
-                    <div style={{ backgroundColor: 'var(--primary-color)', padding: '5px', borderRadius: '50%', color: 'white', display: 'flex' }}>
-                        <Heart fill="white" size={18} />
-                    </div>
-                    <span className="logo-text" style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-color)', letterSpacing: '-0.5px' }}>
-                        NurtureNest
-                    </span>
+                <Link href="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', marginRight: '3.5rem' }}>
+                    <img
+                        src="/logo.png"
+                        alt="NurtureNest"
+                        style={{
+                            height: '42px',
+                            width: 'auto',
+                            transition: 'transform 0.3s ease'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    />
                 </Link>
 
                 {/* Desktop Nav */}
-                <nav className="desktop-nav" style={{ display: 'flex', gap: '1.25rem', alignItems: 'center' }}>
+                <nav className="desktop-nav" style={{ display: 'flex', gap: '1.75rem', alignItems: 'center' }}>
                     {navLinks.map((link) => (
-                        <Link
+                        <motion.div
                             key={link.name}
-                            href={link.path}
-                            className="nav-link"
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.4rem',
-                                color: isActive(link.path) ? 'var(--primary-color)' : 'var(--text-color)',
-                                fontWeight: isActive(link.path) ? 600 : 400,
-                                transition: 'all 0.3s ease',
-                                fontSize: '0.875rem'
-                            }}
+                            whileHover={{ scale: 1.05, y: -2 }}
+                            whileTap={{ scale: 0.95 }}
                         >
-                            <span className="nav-icon">{link.icon}</span>
-                            {link.name}
-                        </Link>
+                            <Link
+                                href={link.path}
+                                className="nav-link"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.6rem',
+                                    color: isActive(link.path) ? 'var(--primary-color)' : 'var(--text-color)',
+                                    fontWeight: isActive(link.path) ? 700 : 500,
+                                    transition: 'all 0.3s ease',
+                                    fontSize: '0.9rem',
+                                    padding: '0.5rem 0'
+                                }}
+                            >
+                                <span className="nav-icon" style={{ opacity: isActive(link.path) ? 1 : 0.7 }}>{link.icon}</span>
+                                {link.name}
+                            </Link>
+                        </motion.div>
                     ))}
 
+                    <div style={{ height: '24px', width: '1px', backgroundColor: '#e5e7eb', margin: '0 0.5rem' }}></div>
+
                     {session ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Hi, {session.user?.name?.split(' ')[0]}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--primary-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 700, fontSize: '0.8rem' }}>
+                                    {session.user?.name?.charAt(0).toUpperCase()}
+                                </div>
+                                <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Hi, {session.user?.name?.split(' ')[0]}</span>
+                            </div>
                             <Button size="sm" variant="outline" onClick={() => signOut()}>
                                 <LogOut size={16} /> Logout
                             </Button>

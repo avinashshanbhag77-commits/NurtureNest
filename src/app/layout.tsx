@@ -4,6 +4,7 @@ import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Providers from "../components/Providers";
+import { AuroraBackground } from "@/components/ui/aurora-background";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,9 @@ export default function RootLayout({
           <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <Header />
             <main className="main-content" style={{ flex: 1 }}>
-              {children}
+              <AuroraBackground>
+                {children}
+              </AuroraBackground>
             </main>
             <Footer />
           </div>

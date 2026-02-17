@@ -5,6 +5,7 @@ import Card from '../../components/Card';
 import Button from '../../components/Button';
 import { MessageCircle, Heart, Share2, Send, X, Trash2 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Community: React.FC = () => {
     const { data: session } = useSession();
@@ -52,22 +53,30 @@ const Community: React.FC = () => {
 
     const handleDeletePost = async (id: string) => {
         if (!confirm('Are you sure you want to delete this discussion?')) return;
+
+        // Optimistic UI: remove from list immediately
+        const originalPosts = [...posts];
+        setPosts(posts.filter(p => (p._id || p.id) !== id));
+
         try {
             const res = await fetch(`/api/community/posts/${id}`, {
                 method: 'DELETE',
             });
-            if (res.ok) {
-                fetchPosts();
+            if (!res.ok) {
+                // Rollback on error
+                setPosts(originalPosts);
+                alert('Failed to delete post');
             }
         } catch (error) {
+            setPosts(originalPosts);
             console.error('Failed to delete post', error);
         }
     };
 
     return (
-        <div className="community-page container" style={{ maxWidth: '800px' }}>
-            <div style={{ textAlign: 'center', margin: '3rem 0' }}>
-                <h1 style={{ color: 'var(--secondary-color)' }}>Mom Community</h1>
+        <div className="container" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary-color)' }}>Community</h1>
                 <p style={{ fontSize: '1.2rem', color: '#666' }}>Connect, share, and grow with other expecting moms.</p>
                 <Button style={{ marginTop: '1rem' }} onClick={() => setShowPostModal(true)}>Start a Discussion</Button>
             </div>
@@ -108,51 +117,60 @@ const Community: React.FC = () => {
             )}
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {posts.map((post) => (
-                    <Card key={post._id || post.id}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#666' }}>
-                                    {post.userName?.charAt(0) || post.user?.charAt(0) || '?'}
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div>
-                                            <span style={{ fontWeight: 600 }}>{post.userName || post.user}</span>
-                                            <span style={{ fontSize: '0.8rem', color: '#888', marginLeft: '0.5rem' }}>• {post.userWeek || post.week}</span>
+                <AnimatePresence>
+                    {posts.map((post) => (
+                        <motion.div
+                            key={post._id || post.id}
+                            initial={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9, height: 0, marginBottom: 0, overflow: 'hidden' }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <Card style={{ padding: '1.5rem 2rem' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                        <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#eee', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#666' }}>
+                                            {post.userName?.charAt(0) || post.user?.charAt(0) || '?'}
                                         </div>
-                                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                            {post.isPinned && <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 600 }}>Pinned</span>}
-                                            {session?.user?.name === (post.userName || post.user) && (
-                                                <button
-                                                    onClick={() => handleDeletePost(post._id || post.id)}
-                                                    style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff6b6b', opacity: 0.7 }}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            )}
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <div>
+                                                    <span style={{ fontWeight: 600 }}>{post.userName || post.user}</span>
+                                                    <span style={{ fontSize: '0.8rem', color: '#888', marginLeft: '0.5rem' }}>• {post.userWeek || post.week}</span>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                                    {post.isPinned && <span style={{ fontSize: '0.8rem', color: 'var(--primary-color)', fontWeight: 600 }}>Pinned</span>}
+                                                    {session?.user?.name === (post.userName || post.user) && (
+                                                        <button
+                                                            onClick={() => handleDeletePost(post._id || post.id)}
+                                                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ff6b6b', opacity: 0.7 }}
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
 
-                        <h3 style={{ margin: '0.5rem 0' }}>{post.title}</h3>
-                        <p style={{ color: '#444', lineHeight: 1.5 }}>{post.content}</p>
+                                <h3 style={{ margin: '0.5rem 0', paddingLeft: '0.5rem' }}>{post.title}</h3>
+                                <p style={{ color: '#444', lineHeight: 1.5, paddingLeft: '0.5rem' }}>{post.content}</p>
 
-                        <div style={{ borderTop: '1px solid #eee', marginTop: '1rem', paddingTop: '1rem', display: 'flex', gap: '1.5rem', color: '#666' }}>
-                            <button style={{ background: 'none', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'inherit', border: 'none', cursor: 'pointer' }}>
-                                <Heart size={18} /> {post.likes}
-                            </button>
-                            <button style={{ background: 'none', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'inherit', border: 'none', cursor: 'pointer' }}>
-                                <MessageCircle size={18} /> {post.comments?.length || 0}
-                            </button>
-                            <button style={{ background: 'none', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'inherit', marginLeft: 'auto', border: 'none', cursor: 'pointer' }}>
-                                <Share2 size={18} />
-                            </button>
-                        </div>
-                    </Card>
-                ))}
+                                <div style={{ borderTop: '1px solid #eee', marginTop: '1rem', paddingTop: '1rem', display: 'flex', gap: '1.5rem', color: '#666', paddingLeft: '0.5rem' }}>
+                                    <button style={{ background: 'none', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'inherit', border: 'none', cursor: 'pointer' }}>
+                                        <Heart size={18} /> {post.likes}
+                                    </button>
+                                    <button style={{ background: 'none', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'inherit', border: 'none', cursor: 'pointer' }}>
+                                        <MessageCircle size={18} /> {post.comments?.length || 0}
+                                    </button>
+                                    <button style={{ background: 'none', display: 'flex', gap: '0.3rem', alignItems: 'center', color: 'inherit', marginLeft: 'auto', border: 'none', cursor: 'pointer' }}>
+                                        <Share2 size={18} />
+                                    </button>
+                                </div>
+                            </Card>
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
             </div>
         </div>
     );

@@ -33,10 +33,10 @@ const DashboardView: React.FC<{ data: DashboardData }> = ({ data }) => {
 
     return (
         <div className="dashboard-page container" style={{ paddingBottom: '4rem', animation: 'fadeIn 0.5s ease' }}>
-            <div style={{ margin: '3rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ margin: '3rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '2rem' }}>
                 <div>
-                    <h1 style={{ color: 'var(--primary-color)', marginBottom: '0.5rem', fontSize: '2.5rem' }}>Welcome, {user.name}</h1>
-                    <p style={{ color: '#666', fontSize: '1.1rem' }}>Here is your pregnancy overview.</p>
+                    <h1 style={{ color: 'var(--primary-color)', marginBottom: '0.25rem', fontSize: '2.75rem', fontWeight: 800 }}>Welcome, {user.name}</h1>
+                    <p style={{ color: '#666', fontSize: '1.2rem', fontWeight: 500 }}>Here is your pregnancy overview.</p>
                 </div>
                 <Link href="/tracker">
                     <Button size="lg">View Tracker</Button>

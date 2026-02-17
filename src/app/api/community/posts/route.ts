@@ -37,7 +37,7 @@ export async function POST(req: Request) {
         const newPost = await CommunityPost.create({
             userId: user._id,
             userName: user.name,
-            userWeek: userWeek || 'Week 16', // Default or from user logic
+            userWeek: userWeek || 'Week 16',
             title,
             content,
             likes: 0,

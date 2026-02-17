@@ -21,7 +21,10 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        const appointments = await Appointment.find({ userId: user._id }).sort({ date: 1 });
+        const appointments = await Appointment.find({
+            userId: user._id,
+            status: { $ne: 'CANCELLED' }
+        }).sort({ date: 1 });
         return NextResponse.json(appointments);
     } catch (error) {
         console.error('Fetch appointments error:', error);

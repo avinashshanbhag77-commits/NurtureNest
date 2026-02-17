@@ -5,6 +5,7 @@ import Card from '@/components/Card';
 import Button from '@/components/Button';
 import { Calendar, Clock, MapPin, User, Plus, ChevronRight, AlertCircle } from 'lucide-react';
 import { useSession } from 'next-auth/react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface AppointmentType {
     _id: string;
@@ -22,6 +23,7 @@ const AppointmentsPage = () => {
     const [appointments, setAppointments] = useState<AppointmentType[]>([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const [message, setMessage] = useState('');
     const [newAppt, setNewAppt] = useState({
         title: '',
         date: '',
@@ -53,6 +55,7 @@ const AppointmentsPage = () => {
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();
+        const isRescheduling = !!newAppt.title && appointments.some(a => a.title === newAppt.title);
         try {
             const res = await fetch('/api/appointments', {
                 method: 'POST',
@@ -62,6 +65,10 @@ const AppointmentsPage = () => {
             if (res.ok) {
                 setShowModal(false);
                 fetchAppointments();
+                if (isRescheduling) {
+                    setMessage('Appointment Rescheduled');
+                    setTimeout(() => setMessage(''), 3000);
+                }
                 setNewAppt({
                     title: '',
                     date: '',
@@ -77,14 +84,19 @@ const AppointmentsPage = () => {
     };
 
     const handleCancel = async (id: string) => {
+        const originalAppointments = [...appointments];
+        setAppointments(appointments.filter(a => a._id !== id));
+
         try {
             const res = await fetch(`/api/appointments/${id}`, {
                 method: 'DELETE',
             });
-            if (res.ok) {
-                fetchAppointments();
+            if (!res.ok) {
+                setAppointments(originalAppointments);
+                alert('Failed to cancel appointment');
             }
         } catch (error) {
+            setAppointments(originalAppointments);
             console.error('Error cancelling appointment:', error);
         }
     };
@@ -92,16 +104,36 @@ const AppointmentsPage = () => {
     if (!session) return <div className="container" style={{ padding: '4rem 1rem', textAlign: 'center' }}>Please sign in to view appointments.</div>;
 
     return (
-        <div className="appointments-page container" style={{ padding: '4rem 1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem' }}>
-                <div>
-                    <h1 style={{ color: 'var(--primary-color)', marginBottom: '0.5rem' }}>Your Appointments</h1>
-                    <p style={{ color: '#666' }}>Never miss a checkup for you and your baby.</p>
-                </div>
+        <div className="container" style={{ paddingTop: '5rem', paddingBottom: '5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '3rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary-color)' }}>Appointments</h1>
                 <Button onClick={() => setShowModal(true)}>
                     <Plus size={20} /> Schedule New
                 </Button>
             </div>
+
+            {message && (
+                <motion.div
+                    initial={{ opacity: 0, y: -20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    style={{
+                        position: 'fixed',
+                        top: '100px',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        backgroundColor: 'var(--primary-color)',
+                        color: 'white',
+                        padding: '1rem 2rem',
+                        borderRadius: '50px',
+                        fontWeight: 600,
+                        zIndex: 1001,
+                        boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
+                    }}
+                >
+                    {message}
+                </motion.div>
+            )}
 
             {loading ? (
                 <div style={{ textAlign: 'center', padding: '3rem' }}>Loading appointments...</div>
@@ -114,79 +146,87 @@ const AppointmentsPage = () => {
                 </Card>
             ) : (
                 <div style={{ display: 'grid', gap: '1.5rem' }}>
-                    {appointments.map((appt) => (
-                        <Card key={appt._id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 2rem' }}>
-                            <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
-                                <div style={{
-                                    backgroundColor: 'var(--secondary-color)',
-                                    padding: '1rem',
-                                    borderRadius: 'var(--radius-md)',
-                                    textAlign: 'center',
-                                    minWidth: '70px'
-                                }}>
-                                    <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{new Date(appt.date).toLocaleString('default', { month: 'short' }).toUpperCase()}</div>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{new Date(appt.date).getDate()}</div>
-                                </div>
+                    <AnimatePresence>
+                        {appointments.filter(a => a.status !== 'CANCELLED').map((appt) => (
+                            <motion.div
+                                key={appt._id}
+                                initial={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0, marginBottom: 0, overflow: 'hidden' }}
+                                transition={{ duration: 0.3 }}
+                            >
+                                <Card style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem 2rem' }}>
+                                    <div style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+                                        <div style={{
+                                            backgroundColor: 'var(--secondary-color)',
+                                            padding: '1rem',
+                                            borderRadius: 'var(--radius-md)',
+                                            textAlign: 'center',
+                                            minWidth: '70px'
+                                        }}>
+                                            <div style={{ fontSize: '0.8rem', fontWeight: 600 }}>{new Date(appt.date).toLocaleString('default', { month: 'short' }).toUpperCase()}</div>
+                                            <div style={{ fontSize: '1.5rem', fontWeight: 700 }}>{new Date(appt.date).getDate()}</div>
+                                        </div>
 
-                                <div>
-                                    <h3 style={{ margin: '0 0 0.5rem' }}>{appt.title}</h3>
-                                    <div style={{ display: 'flex', gap: '1.5rem', color: '#666', fontSize: '0.9rem' }}>
-                                        <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                            <Clock size={16} /> {new Date(appt.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </span>
-                                        {appt.doctorName && (
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                                <User size={16} /> {appt.doctorName}
-                                            </span>
-                                        )}
-                                        {appt.location && (
-                                            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                                <MapPin size={16} /> {appt.location}
-                                            </span>
-                                        )}
+                                        <div>
+                                            <h3 style={{ margin: '0 0 0.5rem' }}>{appt.title}</h3>
+                                            <div style={{ display: 'flex', gap: '1.5rem', color: '#666', fontSize: '0.9rem' }}>
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                    <Clock size={16} /> {new Date(appt.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                </span>
+                                                {appt.doctorName && (
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                        <User size={16} /> {appt.doctorName}
+                                                    </span>
+                                                )}
+                                                {appt.location && (
+                                                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                        <MapPin size={16} /> {appt.location}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
-                            </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'flex-end' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                                    <span style={{
-                                        padding: '0.4rem 1rem',
-                                        borderRadius: '50px',
-                                        backgroundColor: appt.status === 'CANCELLED' ? '#ffeded' : 'var(--light-gray)',
-                                        color: appt.status === 'CANCELLED' ? '#ff6b6b' : 'inherit',
-                                        fontSize: '0.8rem',
-                                        fontWeight: 600
-                                    }}>
-                                        {appt.status}
-                                    </span>
-                                    <ChevronRight color="#ccc" />
-                                </div>
-                                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                    <Button size="sm" variant="outline" onClick={() => {
-                                        if (confirm('Are you sure you want to cancel this appointment?')) {
-                                            handleCancel(appt._id);
-                                        }
-                                    }}>Cancel</Button>
-                                    <Button size="sm" variant="ghost" onClick={() => {
-                                        setNewAppt({
-                                            title: appt.title,
-                                            date: new Date(appt.date).toISOString().slice(0, 16),
-                                            doctorName: appt.doctorName || '',
-                                            location: appt.location || '',
-                                            type: appt.type,
-                                            notes: appt.notes || ''
-                                        });
-                                        setShowModal(true);
-                                    }}>Reschedule</Button>
-                                </div>
-                            </div>
-                        </Card>
-                    ))}
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.8rem', alignItems: 'flex-end' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                            <span style={{
+                                                padding: '0.4rem 1rem',
+                                                borderRadius: '50px',
+                                                backgroundColor: appt.status === 'CANCELLED' ? '#ffeded' : 'var(--light-gray)',
+                                                color: appt.status === 'CANCELLED' ? '#ff6b6b' : 'inherit',
+                                                fontSize: '0.8rem',
+                                                fontWeight: 600
+                                            }}>
+                                                {appt.status}
+                                            </span>
+                                            <ChevronRight color="#ccc" />
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                            <Button size="sm" variant="outline" onClick={() => {
+                                                if (confirm('Are you sure you want to cancel this appointment?')) {
+                                                    handleCancel(appt._id);
+                                                }
+                                            }}>Cancel</Button>
+                                            <Button size="sm" variant="ghost" onClick={() => {
+                                                setNewAppt({
+                                                    title: appt.title,
+                                                    date: new Date(appt.date).toISOString().slice(0, 16),
+                                                    doctorName: appt.doctorName || '',
+                                                    location: appt.location || '',
+                                                    type: appt.type,
+                                                    notes: appt.notes || ''
+                                                });
+                                                setShowModal(true);
+                                            }}>Reschedule</Button>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
                 </div>
             )}
 
-            {/* Modal */}
             {showModal && (
                 <div style={{
                     position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)',

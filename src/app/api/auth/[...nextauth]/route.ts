@@ -35,30 +35,28 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("Incorrect password");
                 }
 
-                return { id: user._id.toString(), name: user.name, email: user.email };
+                return {
+                    id: user._id.toString(),
+                    name: user.name,
+                    email: user.email,
+                    subscriptionTier: user.subscriptionTier
+                };
             },
         }),
     ],
     callbacks: {
-        async signIn({ user, account }) {
-            if (account?.provider === "google") {
-                if (!user.email) return false;
-                await dbConnect();
-                const existingUser = await User.findOne({ email: user.email });
-                if (!existingUser) {
-                    await User.create({
-                        name: user.name || "User",
-                        email: user.email,
-                        image: user.image || "",
-                        password: "", // No password for OAuth users
-                    });
-                }
+        async jwt({ token, user, trigger, session }) {
+            if (user) {
+                token.subscriptionTier = (user as any).subscriptionTier;
             }
-            return true;
+            if (trigger === "update" && session?.subscriptionTier) {
+                token.subscriptionTier = session.subscriptionTier;
+            }
+            return token;
         },
         async session({ session, token }) {
             if (session.user) {
-                // session.user.id = token.sub!; // Add user ID to session if needed
+                (session.user as any).subscriptionTier = token.subscriptionTier;
             }
             return session;
         },

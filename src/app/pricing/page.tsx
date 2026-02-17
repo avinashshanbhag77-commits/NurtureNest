@@ -10,16 +10,16 @@ import { useRouter } from 'next/navigation';
 const PricingPage = () => {
     const { data: session } = useSession();
     const router = useRouter();
-    const [selectedTier, setSelectedTier] = useState<string>('pro');
+    const currentTier = (session?.user as any)?.subscriptionTier || 'free';
 
-    const handleUpgrade = (tier: string) => {
+    const handleUpgrade = async (tier: string) => {
         if (!session) {
             window.location.href = `/auth/signin?callbackUrl=/pricing`;
             return;
         }
 
-        if (tier === 'free') {
-            alert('You are already on the Free Plan.');
+        if (tier === currentTier) {
+            alert('You are already on this plan.');
             return;
         }
 
@@ -90,18 +90,16 @@ const PricingPage = () => {
                 margin: '0 auto'
             }}>
                 {tiers.map((tier) => {
-                    const isSelected = selectedTier === tier.id;
+                    const isActive = tier.id === currentTier;
                     return (
                         <Card
                             key={tier.id}
-                            onClick={() => setSelectedTier(tier.id)}
                             style={{
                                 position: 'relative',
-                                border: isSelected ? '3px solid var(--secondary-color)' : '1px solid #eee',
-                                transform: isSelected ? 'scale(1.05)' : 'none',
-                                zIndex: isSelected ? 1 : 0,
+                                border: isActive ? '3px solid var(--secondary-color)' : '1px solid #eee',
+                                transform: isActive ? 'scale(1.02)' : 'none',
+                                zIndex: isActive ? 1 : 0,
                                 transition: 'all 0.3s ease',
-                                cursor: 'pointer'
                             }}
                         >
                             {tier.id === 'pro' && (
@@ -143,13 +141,14 @@ const PricingPage = () => {
 
                             <Button
                                 fullWidth
-                                variant={isSelected ? 'primary' : 'outline'}
+                                variant={tier.id === currentTier ? 'outline' : (tier.id === 'pro' ? 'primary' : 'outline')}
+                                disabled={tier.id === currentTier}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     handleUpgrade(tier.id);
                                 }}
                             >
-                                {tier.id === 'free' ? 'Current Plan' : tier.buttonText}
+                                {tier.id === currentTier ? 'Current Plan' : tier.buttonText}
                             </Button>
                         </Card>
                     );

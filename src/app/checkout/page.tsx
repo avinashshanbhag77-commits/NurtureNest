@@ -123,12 +123,26 @@ const CheckoutContent = () => {
                         </div>
 
                         <Button fullWidth size="lg" disabled={loading}>
-                            {loading ? (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', transform: 'scale(0.5)' }}>
-                                    <div className="evolution-loader" style={{ fontSize: '1rem' }} /> Processing...
-                                </div>
-                            ) : `Pay ${getPrice().split('/')[0]}`}
+                            Pay {getPrice().split('/')[0]}
                         </Button>
+
+                        {loading && (
+                            <div style={{
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                backgroundColor: 'rgba(255,255,255,0.9)',
+                                zIndex: 2000,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backdropFilter: 'blur(5px)'
+                            }}>
+                                <LoadingEvolution message="Processing your payment securely..." />
+                            </div>
+                        )}
                     </form>
                 </Card>
 
