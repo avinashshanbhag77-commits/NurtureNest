@@ -14,8 +14,9 @@ function SignInContent() {
     const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
     useEffect(() => {
+        console.log("Auth Status:", status);
         if (status === 'authenticated') {
-            // Force a browser-level redirect to ensure sync
+            console.log("Redirecting to:", callbackUrl);
             window.location.href = callbackUrl;
         }
     }, [status, callbackUrl]);
