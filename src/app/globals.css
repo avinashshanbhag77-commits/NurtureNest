@@ -1,16 +1,22 @@
-@import './variables.css';
-@import './global.css';
-
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary-color: #ffb7b2;
+  --secondary-color: #b2e2f2;
+  --accent-color: #ffdab9;
+  --text-color: #4a4a4a;
+  --background-color: #fff9f9;
+  --white: #ffffff;
+  --light-gray: #f8f8f8;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
   --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    /* Keeping light for pregnancy app feel as per user preference */
+    --foreground: #171717;
   }
 }
 

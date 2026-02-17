@@ -3,10 +3,12 @@ import Link from 'next/link';
 import { ArrowRight, Heart, Shield, Activity, Smile } from 'lucide-react';
 import Button from '../components/Button';
 import Card from '../components/Card';
+import ParticlesBackground from '../components/ParticlesBackground';
 
 export default function Home() {
   return (
-    <div className="home-page">
+    <div className="home-page" style={{ position: 'relative' }}>
+      <ParticlesBackground />
       {/* Hero Section */}
       <section className="hero" style={{
         padding: '4rem 0',
@@ -14,29 +16,29 @@ export default function Home() {
         background: 'linear-gradient(180deg, var(--background-color) 0%, rgba(255,255,255,0) 100%)'
       }}>
         <div className="container">
-          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative', zIndex: 1, padding: '0 1rem' }}>
             <span style={{
               backgroundColor: 'white',
               padding: '0.5rem 1rem',
               borderRadius: '50px',
-              fontSize: '0.9rem',
-              fontWeight: 600,
+              fontSize: '0.85rem',
+              fontWeight: 700,
               color: 'var(--primary-color)',
-              marginBottom: '1rem',
+              marginBottom: '1.25rem',
               display: 'inline-block',
-              boxShadow: '0 2px 8px rgba(255, 183, 178, 0.4)'
+              boxShadow: '0 4px 12px rgba(255, 183, 178, 0.3)'
             }}>
               ✨ Your Smart Pregnancy Companion
             </span>
-            <h1 style={{ fontSize: '3rem', margin: '1rem 0', lineHeight: 1.2 }}>
+            <h1 style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)', margin: '1rem 0', lineHeight: 1.1, fontWeight: 800 }}>
               A Healthier, Happier Journey for <span style={{ color: 'var(--primary-color)' }}>You & Baby</span>
             </h1>
-            <p style={{ fontSize: '1.2rem', color: '#666', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+            <p style={{ fontSize: '1.1rem', color: '#666', marginBottom: '2.5rem', maxWidth: '600px', margin: '0 auto 2.5rem', lineHeight: 1.6 }}>
               Track your pregnancy, get personalized health tips, and find support—all in one place. Designed for moms, backed by experts.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', position: 'relative', zIndex: 2 }}>
               <Link href="/tracker">
-                <Button size="lg">Start Your Journey <ArrowRight size={20} /></Button>
+                <Button size="lg" style={{ boxShadow: '0 10px 20px rgba(255, 183, 178, 0.4)' }}>Start Your Journey <ArrowRight size={20} /></Button>
               </Link>
               <Link href="/about">
                 <Button variant="outline" size="lg">Learn More</Button>

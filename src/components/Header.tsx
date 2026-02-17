@@ -29,8 +29,8 @@ const Header: React.FC = () => {
         <header className="header" style={{
             position: 'sticky',
             top: 0,
-            zIndex: 100,
-            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            zIndex: 1000,
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
             backdropFilter: 'blur(10px)',
             boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
         }}>
