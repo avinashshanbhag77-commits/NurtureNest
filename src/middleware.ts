@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export async function middleware(req: NextRequest) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    const token = await getToken({
+        req,
+        secret: process.env.NEXTAUTH_SECRET,
+        secureCookie: process.env.NODE_ENV === "production" || req.url.startsWith("https")
+    });
     const { pathname } = req.nextUrl;
 
     // If user is authenticated and tries to access signin or signup, redirect to dashboard

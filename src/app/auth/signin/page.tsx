@@ -36,6 +36,12 @@ function SignInContent() {
         return rawCallbackUrl;
     }, [rawCallbackUrl]);
 
+    useEffect(() => {
+        if (status === 'authenticated') {
+            router.replace(callbackUrl);
+        }
+    }, [status, callbackUrl, router]);
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
