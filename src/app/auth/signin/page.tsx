@@ -13,13 +13,9 @@ function SignInContent() {
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
-    useEffect(() => {
-        console.log("Auth Status:", status);
-        if (status === 'authenticated') {
-            console.log("Redirecting to:", callbackUrl);
-            window.location.href = callbackUrl;
-        }
-    }, [status, callbackUrl]);
+    // Removed redundant useEffect redirect to prevent sign-in/sign-out loops. 
+    // NextAuth's signIn function handles redirection via callbackUrl.
+
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -32,16 +28,14 @@ function SignInContent() {
             const res = await signIn('credentials', {
                 email,
                 password,
-                redirect: false,
+                callbackUrl: callbackUrl,
+                redirect: true,
             });
 
             if (res?.error) {
                 setError(res.error);
                 return;
             }
-
-            router.push(callbackUrl);
-            router.refresh();
         } catch (error) {
             setError('An error occurred. Please try again.');
         }
@@ -104,7 +98,7 @@ function SignInContent() {
 
 
                 <p style={{ textAlign: 'center', marginTop: '2rem', fontSize: '0.9rem', color: '#666' }}>
-                    Don't have an account? <Link href="/auth/signup" style={{ color: 'var(--primary-color)', fontWeight: 600 }}>Sign up</Link>
+                    Don&apos;t have an account? <Link href="/auth/signup" style={{ color: 'var(--primary-color)', fontWeight: 600 }}>Sign up</Link>
                 </p>
             </Card>
         </div>
