@@ -20,10 +20,8 @@ function SignInContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-    // Get callbackUrl and ensure it's a string, defaulting to dashboard
+    // CallbackUrl is still used for the form submission
     const rawCallbackUrl = searchParams.get('callbackUrl') || '/dashboard';
-
-    // Normalize callbackUrl to be relative if it points to the same host
     const callbackUrl = React.useMemo(() => {
         try {
             if (rawCallbackUrl.startsWith('http')) {
@@ -37,13 +35,6 @@ function SignInContent() {
         }
         return rawCallbackUrl;
     }, [rawCallbackUrl]);
-
-    useEffect(() => {
-        if (status === 'authenticated') {
-            console.log("Authenticated detected, auto-redirecting to:", callbackUrl);
-            router.replace(callbackUrl);
-        }
-    }, [status, callbackUrl, router]);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
