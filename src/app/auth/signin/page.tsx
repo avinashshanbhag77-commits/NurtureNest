@@ -41,7 +41,7 @@ function SignInContent() {
     useEffect(() => {
         if (status === 'authenticated') {
             console.log("Authenticated detected, auto-redirecting to:", callbackUrl);
-            router.push(callbackUrl);
+            router.replace(callbackUrl);
         }
     }, [status, callbackUrl, router]);
 
