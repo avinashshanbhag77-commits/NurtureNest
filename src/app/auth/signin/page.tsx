@@ -13,8 +13,11 @@ function SignInContent() {
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
 
-    // Removed redundant useEffect redirect to prevent sign-in/sign-out loops. 
-    // NextAuth's signIn function handles redirection via callbackUrl.
+    useEffect(() => {
+        if (status === 'authenticated') {
+            router.replace(callbackUrl);
+        }
+    }, [status, callbackUrl, router]);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
