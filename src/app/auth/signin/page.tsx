@@ -38,7 +38,18 @@ function SignInContent() {
 
     useEffect(() => {
         if (status === 'authenticated') {
+            console.log("CLIENT REDIRECT: User authenticated, moving to:", callbackUrl);
             router.replace(callbackUrl);
+
+            // Failsafe: if router doesn't move within 500ms, force it with window.location
+            const timeout = setTimeout(() => {
+                if (window.location.pathname === '/auth/signin') {
+                    console.log("CLIENT REDIRECT FALLBACK: Forcing location change...");
+                    window.location.href = callbackUrl;
+                }
+            }, 500);
+
+            return () => clearTimeout(timeout);
         }
     }, [status, callbackUrl, router]);
 

@@ -22,12 +22,19 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <Providers>
-          <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <Header />
+          <div className="app-container" style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', position: 'relative' }}>
+            <div style={{ position: 'relative', zIndex: 1000 }}>
+              <Header />
+            </div>
             <main className="main-content" style={{ flex: 1, position: 'relative' }}>
-              <AuroraBackground>
+              <div style={{ position: 'absolute', inset: 0, zIndex: -1, pointerEvents: 'none' }}>
+                <AuroraBackground>
+                  <div />
+                </AuroraBackground>
+              </div>
+              <div style={{ position: 'relative', zIndex: 10 }}>
                 {children}
-              </AuroraBackground>
+              </div>
             </main>
             <Footer />
           </div>

@@ -93,7 +93,7 @@ Remember: You're a support companion, not a medical professional.`
             headers: {
                 'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
                 'Content-Type': 'application/json',
-                'HTTP-Referer': process.env.NEXTAUTH_URL || 'http://localhost:3000',
+                'HTTP-Referer': process.env.NEXTAUTH_URL || '',
                 'X-Title': 'NurtureNest'
             },
             body: JSON.stringify({
