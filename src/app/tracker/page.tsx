@@ -1,6 +1,6 @@
 import React from 'react';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import TrackerView from '../../components/TrackerView';
